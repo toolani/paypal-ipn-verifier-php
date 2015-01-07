@@ -18,12 +18,12 @@ class IpnVerifier
     const PAYPAL_HOST  = 'www.paypal.com';
     const SANDBOX_HOST = 'www.sandbox.paypal.com';
     
-    const STATUS_UNKNOWN  = 'UNKNOWN';
-    const STATUS_ERROR    = 'ERROR';
-    const STATUS_NO_DATA  = 'NO_DATA';
-    const STATUS_VERIFIED = 'VERIFIED';
-    const STATUS_INVALID  = 'INVALID';
-    const STATUS_TIMEOUT  = 'IPN_TIMEOUT';
+    const STATUS_UNKNOWN  = 'UNKNOWN';     // We didn't get as far as trying to verify
+    const STATUS_ERROR    = 'ERROR';       // Tried to verify and something went wrong
+    const STATUS_NO_DATA  = 'NO_DATA';     // No data was provided to be verified
+    const STATUS_VERIFIED = 'VERIFIED';    // IPN verified OK
+    const STATUS_INVALID  = 'INVALID';     // PayPal reports that IPN is invalid
+    const STATUS_TIMEOUT  = 'IPN_TIMEOUT'; // Verification request timed out
     
     /**
      *  If true, the paypal sandbox URI www.sandbox.paypal.com is used for the
@@ -129,7 +129,7 @@ class IpnVerifier
      * 
      * @return string One of the STATUS_ constants from this class.
      */
-    public function getVerificationStatus()
+    public function getVerificationStatusString()
     {
         return $this->verificationStatus;
     }

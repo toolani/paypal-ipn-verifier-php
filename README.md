@@ -65,7 +65,24 @@ if ($verified) {
     // IPN response was "INVALID"
 }
 
+// Verification status is available as a string, too. See table below
+$status = $verifier->getVerificationStatusString();
+
 ```
+
+Verification Status Strings
+---------------------------
+
+These are the possible status that may be returned by `getVerificationStatusString`. In normal operation, only 'VERIFIED' and 'INVALID' would be expected. Other statuses indicate errors.
+
+Status|Description
+------|-----------
+VERIFIED    | IPN verified OK
+INVALID     | PayPal reports that IPN is invalid
+UNKNOWN     | We didn't get as far as trying to verify
+ERROR       | Tried to verify and something went wrong
+NO_DATA     | No data was provided to be verified
+IPN_TIMEOUT | Verification request timed out
 
 Quixotix/PHP-PayPal-IPN compatibility
 -------------------------------------
