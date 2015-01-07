@@ -1,0 +1,21 @@
+{
+    "name": "toolani/ipn-verifier",
+    "description": "Verifies Paypal IPNs",
+    "keywords": ["paypal","IPN"],
+    "homepage": "http://github.com/toolani/paypal-ipn-verifier",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Peter Thompson",
+            "email": "peter.thompson@toolani.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Toolani": "src"
+        }
+    }
+}
