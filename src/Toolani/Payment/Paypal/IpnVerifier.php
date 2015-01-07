@@ -15,6 +15,16 @@ namespace Toolani\Payment\Paypal;
  */
 class IpnVerifier
 {    
+    const PAYPAL_HOST  = 'www.paypal.com';
+    const SANDBOX_HOST = 'www.sandbox.paypal.com';
+    
+    const STATUS_UNKNOWN  = 'UNKNOWN';
+    const STATUS_ERROR    = 'ERROR';
+    const STATUS_NO_DATA  = 'NO_DATA';
+    const STATUS_VERIFIED = 'VERIFIED';
+    const STATUS_INVALID  = 'INVALID';
+    const STATUS_TIMEOUT  = 'IPN_TIMEOUT';
+    
     /**
      *  If true, the paypal sandbox URI www.sandbox.paypal.com is used for the
      *  post back. If false, the live URI www.paypal.com is used. Default false.
@@ -31,9 +41,7 @@ class IpnVerifier
     private $postUri        = '';     
     private $responseStatus = '';
     private $response       = '';
-
-    const PAYPAL_HOST  = 'www.paypal.com';
-    const SANDBOX_HOST = 'www.sandbox.paypal.com';
+    private $verificationStatus = self::STATUS_UNKNOWN;
     
     /**
      * @param boolean $useSandbox If true, IPNs will be verified using the PayPal sandbox, rather than the live URL.
@@ -57,6 +65,8 @@ class IpnVerifier
     public function verify($postData)
     {
         if ($postData === null || empty($postData)) {
+            $this->verificationStatus = self::STATUS_NO_DATA;
+            
             throw new \Exception("No POST data found.", 103);
         }
         
@@ -72,15 +82,23 @@ class IpnVerifier
         $this->curlPost($encodedData);
         
         if (strpos($this->responseStatus, '200') === false) {
+            $this->verificationStatus = self::STATUS_ERROR;
+            
             throw new \Exception("Invalid response status: ".$this->responseStatus, 104);
         }
         
         if (strpos($this->response, "VERIFIED") !== false) {
+            $this->verificationStatus = self::STATUS_VERIFIED;
+            
             return true;
         } elseif (strpos($this->response, "INVALID") !== false) {
+            $this->verificationStatus = self::STATUS_INVALID;
+            
             return false;
         } else {
             // parent::error("Unexpected response from PayPal.");
+            $this->verificationStatus = self::STATUS_ERROR;
+            
             throw new \Exception("Unexpected response from PayPal.", 105);
         }
     }
@@ -104,6 +122,16 @@ class IpnVerifier
         }
         
         return $this->verify($postData);
+    }
+    
+    /**
+     * Gets the IPN verification status.
+     * 
+     * @return string One of the STATUS_ constants from this class.
+     */
+    public function getVerificationStatus()
+    {
+        return $this->verificationStatus;
     }
     
     /**
@@ -218,8 +246,12 @@ class IpnVerifier
             
             if($errno == 28) {
                 // cURL timeout error
+                $this->verificationStatus = self::STATUS_TIMEOUT;
+                
                 throw new \Exception("cURL timeout error: [$errno] $errstr", 101);
             } else {
+                $this->verificationStatus = self::STATUS_ERROR;
+                
                 throw new \Exception("cURL error: [$errno] $errstr", 100);
             }
         }
