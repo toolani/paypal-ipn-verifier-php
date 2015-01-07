@@ -1,8 +1,8 @@
 {
-    "name": "toolani/ipn-verifier",
+    "name": "toolani/paypal-ipn-verifier",
     "description": "Verifies Paypal IPNs",
     "keywords": ["paypal","IPN"],
-    "homepage": "http://github.com/toolani/paypal-ipn-verifier",
+    "homepage": "http://github.com/toolani/paypal-ipn-verifier-php",
     "license": "BSD-3-Clause",
     "authors": [
         {
@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Toolani": "src"
+            "Toolani\\": "src"
         }
     }
 }
