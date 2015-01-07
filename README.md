@@ -6,7 +6,7 @@ A PayPal Instant Payment Notification (IPN) verifier class for PHP 5.
 Use the `IpnVerifier` class in your IPN script to handle the encoding 
 of POST data, post back to PayPal, and parsing of the response from PayPal.
 
-This class was based on (and is almost API-compatible with) [Quixotix/PHP-PayPal-IPN][1]
+This class was based on (and is almost API-compatible with) [Quixotix/PHP-PayPal-IPN][1]. See below for differences and tips for porting your code.
 
 [1]: https://github.com/Quixotix/PHP-PayPal-IPN
 
@@ -43,7 +43,7 @@ listener.
 
 Once you have your sandbox account set up, you simply create a PHP script that will be your IPN listener. In that script, use the `IpnVerifier()` class as shown below.
 
-```
+```php
 <?php
 use Toolani\Payment\Paypal\IpnVerifier;
 
