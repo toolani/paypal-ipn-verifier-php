@@ -70,6 +70,13 @@ $status = $verifier->getVerificationStatusString();
 
 ```
 
+Logging
+-------
+
+The `IpnVerifier` constructor optionally accepts a [PSR-3 compliant] logger object as its second parameter.
+
+If provided, this will be used to log some basic info about each IPN and details of any errors during verification.
+
 Verification Status Strings
 ---------------------------
 

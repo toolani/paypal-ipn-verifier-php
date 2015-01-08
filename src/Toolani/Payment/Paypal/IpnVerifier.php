@@ -10,6 +10,8 @@
 
 namespace Toolani\Payment\Paypal;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Verifies PayPal IPN data with PayPal.
  */
@@ -37,6 +39,8 @@ class IpnVerifier
      */
     public $timeout = 30;
     
+    private $logger;
+    
     private $postData       = array();
     private $postUri        = '';     
     private $responseStatus = '';
@@ -44,11 +48,13 @@ class IpnVerifier
     private $verificationStatus = self::STATUS_UNKNOWN;
     
     /**
-     * @param boolean $useSandbox If true, IPNs will be verified using the PayPal sandbox, rather than the live URL.
+     * @param boolean         $useSandbox If true, IPNs will be verified using the PayPal sandbox, rather than the live URL.
+     * @param LoggerInterface $logger     If provided, will be used to log some basic info about the IPN and any errors.
      */
-    public function __construct($useSandbox)
+    public function __construct($useSandbox, LoggerInterface $logger = null)
     {
         $this->useSandbox = $useSandbox;
+        $this->logger     = $logger;
     }
     
     /**
@@ -65,9 +71,17 @@ class IpnVerifier
     public function verify($postData)
     {
         if ($postData === null || empty($postData)) {
+            if ($this->logger) {
+                $this->logger->warning('No IPN data to verify');
+            }
+            
             $this->verificationStatus = self::STATUS_NO_DATA;
             
             throw new \Exception("No POST data found.", 103);
+        }
+        
+        if ($this->logger) {
+            $this->logger->debug('Verifying IPN', array('post_data' => $postData));
         }
         
         $encodedData    = 'cmd=_notify-validate';
@@ -76,15 +90,16 @@ class IpnVerifier
         foreach ($this->postData as $key => $value) {
             $encodedData .= "&$key=".urlencode($value);
         }
-        
-        // parent::debug('encoded_data:'.$encodedData);
 
         $this->curlPost($encodedData);
         
         if (strpos($this->responseStatus, '200') === false) {
+            if ($this->logger) {
+                $this->logger->error('Unexpected IPN verification response status', array('http_status' => $this->responseStatus));
+            }
             $this->verificationStatus = self::STATUS_ERROR;
             
-            throw new \Exception("Invalid response status: ".$this->responseStatus, 104);
+            throw new \Exception("Unexpected response status: ".$this->responseStatus, 104);
         }
         
         if (strpos($this->response, "VERIFIED") !== false) {
@@ -96,7 +111,9 @@ class IpnVerifier
             
             return false;
         } else {
-            // parent::error("Unexpected response from PayPal.");
+            if ($this->logger) {
+                $this->logger->error('Unexpected IPN verification response content', array('response' => $this->response));
+            }
             $this->verificationStatus = self::STATUS_ERROR;
             
             throw new \Exception("Unexpected response from PayPal.", 105);
@@ -216,8 +233,6 @@ class IpnVerifier
     protected function curlPost($encodedData)
     {
         $this->postUri = 'https://'.$this->getPaypalHost().'/cgi-bin/webscr';
-
-        // parent::debug('curlPost uri:'.$this->postUri);
         
         $ch = curl_init();
 
@@ -242,7 +257,9 @@ class IpnVerifier
             $errno = curl_errno($ch);
             $errstr = curl_error($ch);
             
-            // parent::error("curl error, errno:$errno; errstr:$errstr");
+            if ($this->logger) {
+                $this->logger->error('cURL error while verifying IPN', array('errno' => $errno, 'error' => $errstr));
+            }
             
             if($errno == 28) {
                 // cURL timeout error
