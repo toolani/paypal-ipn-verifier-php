@@ -73,9 +73,11 @@ $status = $verifier->getVerificationStatusString();
 Logging
 -------
 
-The `IpnVerifier` constructor optionally accepts a [PSR-3 compliant] logger object as its second parameter.
+The `IpnVerifier` constructor optionally accepts a [PSR-3 compliant][4] logger object as its second parameter.
 
 If provided, this will be used to log some basic info about each IPN and details of any errors during verification.
+
+[4]: https://github.com/php-fig/log
 
 Verification Status Strings
 ---------------------------
@@ -96,7 +98,7 @@ Quixotix/PHP-PayPal-IPN compatibility
 
 It should be straightforward to port scripts using the PHP-PayPal-IPN class to use `IpnVerifier` instead, and a `processIpn()` method is provided to ease this.
 
-The usage example above is directly equivalent to the [example][4] given in the PHP-PayPal-IPN documentation.
+The usage example above is directly equivalent to the [example][5] given in the PHP-PayPal-IPN documentation.
 
 Things to be aware of:
 
@@ -104,7 +106,7 @@ Things to be aware of:
 - There are no options for configuring cURL, SSL will always be used.
 - The `verify` method requires that you explicitly provide the array of POSTed data. PHP-PayPal-IPN's `processIpn` did not and would automagically use `$_POST` if given no data. A `processIpn` method is thus provided, which mimics the old behaviour. **Note**: `verify` is the preferred method for verifying IPNs and `processIpn` should be considered deprecated and may be removed in future versions of this class.
 
-[4]: https://github.com/Quixotix/PHP-PayPal-IPN/blob/master/README.md#getting-started
+[5]: https://github.com/Quixotix/PHP-PayPal-IPN/blob/master/README.md#getting-started
 
 
 Example Report
